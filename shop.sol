@@ -10,6 +10,10 @@ contract Item{
         owner = initialOwner;
     }    
     
+    function changeOwner(address newOwner){
+        owner = newOwner;
+    }
+    
 }
 
 contract Shop{
@@ -39,24 +43,10 @@ contract Shop{
         
         delete items[itemIndex];
         
-        itemToSell.owner = newOwner;
+        itemToSell.changeOwner(newOwner);
         
         ItemSoled(itemToSell, to);
         
-        
         return true;
     }
-    
-    // function transferItem(uint itemIndex, Shop to) returns (bool success){
-    //     itemToSell = items[itemIndex];
-
-    //     to.addItem(itemToSell);
-        
-    //     delete items[itemIndex];
-        
-    //     ItemSoled(itemToSell, to);
-        
-    //     return true;
-    // }
 }
-
