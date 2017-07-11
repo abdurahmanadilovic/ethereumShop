@@ -1,52 +1,52 @@
-pragma solidity ^0.4.0;
-
-contract Item{
-    uint public price;
-    bool public forSale;
-    address public owner;
-    
-    function Item(uint itemPrice, address initialOwner){
-        price = itemPrice;
-        owner = initialOwner;
-    }    
-    
-    function changeOwner(address newOwner){
-        owner = newOwner;
-    }
-    
-}
+pragma solidity ^0.4.11;
 
 contract Shop{
-    Item[] items;
+    struct Item {
+        uint price;
+        address owner;
+        bool forSale;
+    }
+
+    mapping (uint => Item) items;
+
     address owner;
     uint wallet;
-    
-    event ItemSoled(Item item, Shop to);
-    event ItemBought(Item item, Shop from);
+    uint itemNumber;
+    // event ItemSoled(Item item, Shop to);
+    // event ItemBought(Item item, Shop from);
     
     function Shop(){
         owner = msg.sender;
     }   
     
-    function addItem(Item item){
-        items.push(item);
+    function addItem(uint price, address owner, bool forSale) returns (uint itemId){
+        itemId = itemNumber++;
+        items[itemId] = Item(price, owner, forSale);
     }
     
     function itemCount() returns (uint size){
-        return items.length;
+        return itemNumber;
     }
     
-    function transferItem(uint itemIndex, Shop to, address newOwner) payable returns (bool success) {
-        Item itemToSell = items[itemIndex];
+    function transferItem(uint itemId, address newOwner) payable returns (bool success) {
+        Item memory itemToSell = items[itemId];
         
-        to.addItem(items[itemIndex]);
         
-        delete items[itemIndex];
+        itemToSell.owner = newOwner;
         
-        itemToSell.changeOwner(newOwner);
-        
-        ItemSoled(itemToSell, to);
+        // ItemSoled(itemToSell, to);
         
         return true;
+    }
+    
+    function getItemsForOwner(address owner) returns (uint userItremsCount){
+        uint userItemsCount = 0;
+        for (uint i=0; i<itemNumber; i++){
+            if(items[i].owner == owner){
+                userItemsCount++;
+            }
+        }
+        
+        return userItemsCount;
     }
 }
