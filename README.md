@@ -1,2 +1,2 @@
-# ethereumShop
-simple app in solidity language
+# Ethereum Shop
+Simple e commerce app in solidity language
