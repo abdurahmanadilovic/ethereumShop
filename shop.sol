@@ -11,7 +11,7 @@ contract Shop{
     }
     mapping (uint => Item) items;
     mapping (address => uint) coinBank;
-    event ItemSoled(uint itemId, address to);
+    event ItemBought(uint itemId, address to);
     address owner;
     uint wallet;
     uint itemNumber;
@@ -43,7 +43,7 @@ contract Shop{
         items[itemId] = Item(price, owner, forSale, name);
     }
     
-    function transferItem(uint itemId, address newOwner) returns (bool success) {
+    function buyItem(uint itemId, address newOwner) returns (bool success) {
         Item memory itemToSell = items[itemId];
         
         if (itemId >= itemNumber) {
@@ -54,7 +54,7 @@ contract Shop{
             coinBank[newOwner] -= items[itemId].price;
             coinBank[itemToSell.owner] += items[itemId].price;
             items[itemId].owner = newOwner;
-            ItemSoled(itemId, newOwner);
+            ItemBought(itemId, newOwner);
             
             return true;
         } else {
@@ -62,7 +62,7 @@ contract Shop{
         }
     }
     
-    function getItemsForOwner(address owner) returns (uint userItremsCount) {
+    function getItemsForAddress(address owner) returns (uint userItremsCount) {
         uint userItemsCount = 0;
         for (uint i=0; i<itemNumber; i++) {
             if (items[i].owner == owner) {
