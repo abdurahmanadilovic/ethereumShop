@@ -78,6 +78,10 @@ contract Shop is Ownable{
         success = true;
     }
     
+    function coinCount(address account) onlyOwner returns (uint coinCount) {
+        coinCount = coinBank[account];
+    }
+    
     function getItemsForAddress(address owner) onlyOwner returns (uint userItremsCount) {
         uint userItemsCount = 0;
         for (uint i=0; i<itemNumber; i++) {
