@@ -8,7 +8,7 @@ transferred to another user by the owner only
 
 ## Simple use case
 
-Owner of the shop creates a website that talks with the ethereum node then add items through
+Owner of the shop creates a website that talks with the ethereum node through [ethereum js api](https://github.com/ethereum/web3.js/) then add items through
 the contract and displays the item on the website
 
 A user creates an account on the website, enters his address of the ethereum wallet,
