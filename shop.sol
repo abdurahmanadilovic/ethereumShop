@@ -2,7 +2,27 @@ pragma solidity ^0.4.11;
 
 // 0.000000000000000002 is equal to 2 eth on the remix web ide
 
-contract Shop{
+contract Ownable {
+    address public owner;
+
+    function Ownable() {
+        owner = msg.sender;
+    }
+
+    modifier onlyOwner {
+        if (msg.sender != owner) throw;
+        // the _; will be replaced by the actual function body when the modifier is used!
+        _;
+    }
+
+    function transferOwnership(address newOwner) onlyOwner {
+        if (newOwner != address(0)) {
+            owner = newOwner;
+        }
+    }
+}
+
+contract Shop is Ownable{
     struct Item {
         uint price;
         address owner;
@@ -26,9 +46,8 @@ contract Shop{
     function buyCoin() payable returns (bool success){
         uint ethAmount = msg.value;
         address buyer = msg.sender;
-        uint coinsBought = ethAmount * coinValuePerEth;
-        
-        if(coinBank[owner] >= coinsBought){
+        if(coinBank[owner] >= coinsBought && ethAmount > 0){
+            uint coinsBought = ethAmount * coinValuePerEth;
             coinBank[owner] -= coinsBought;
             coinBank[buyer] += coinsBought;
             success = true;
@@ -38,31 +57,28 @@ contract Shop{
         }
     }
     
-    function addItem(uint price, address owner, bool forSale, string name) returns (uint itemId) {
+    function addItem(uint price, address owner, bool forSale, string name) onlyOwner returns (uint itemId) {
         itemId = itemNumber++;
         items[itemId] = Item(price, owner, forSale, name);
     }
     
-    function buyItem(uint itemId, address newOwner) returns (bool success) {
-        Item memory itemToSell = items[itemId];
+    function transferItem(uint itemIndex, address newOwner) onlyOwner returns (bool success) {
+        Item memory itemToSell = items[itemIndex];
         
-        if (itemId >= itemNumber) {
-            return false;
+        if (itemIndex > itemNumber || coinBank[newOwner] < itemToSell.price || !itemToSell.forSale) {
+            success = false;
+            return;
         }
         
-        if (coinBank[newOwner] >= items[itemId].price) {
-            coinBank[newOwner] -= items[itemId].price;
-            coinBank[itemToSell.owner] += items[itemId].price;
-            items[itemId].owner = newOwner;
-            ItemBought(itemId, newOwner);
-            
-            return true;
-        } else {
-            return false;
-        }
+        coinBank[newOwner] -= itemToSell.price;
+        coinBank[itemToSell.owner] += itemToSell.price;
+        itemToSell.owner = newOwner;
+        items[itemIndex] = itemToSell;
+        ItemBought(itemIndex, newOwner);
+        success = true;
     }
     
-    function getItemsForAddress(address owner) returns (uint userItremsCount) {
+    function getItemsForAddress(address owner) onlyOwner returns (uint userItremsCount) {
         uint userItemsCount = 0;
         for (uint i=0; i<itemNumber; i++) {
             if (items[i].owner == owner) {
