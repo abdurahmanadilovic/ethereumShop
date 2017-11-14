@@ -43,18 +43,18 @@ contract Shop is Ownable{
         coinBank[owner] = totalCoins;
     }   
     
-    function buyCoin() payable returns (bool success){
+
+    // fallback function
+    // the function without name is the default function that is called whenever anyone sends funds to a contract
+    function () payable {
         uint ethAmount = msg.value;
         address buyer = msg.sender;
-        if(coinBank[owner] >= coinsBought && ethAmount > 0){
-            uint coinsBought = ethAmount * coinValuePerEth;
-            coinBank[owner] -= coinsBought;
-            coinBank[buyer] += coinsBought;
-            success = true;
-        }
-        else{
-            success = false;
-        }
+        
+        require(coinBank[owner] >= coinsBought && ethAmount > 0);
+
+        uint coinsBought = ethAmount * coinValuePerEth;
+        coinBank[owner] -= coinsBought;
+        coinBank[buyer] += coinsBought;
     }
     
     function addItem(uint price, address owner, bool forSale, string name) onlyOwner returns (uint itemId) {
